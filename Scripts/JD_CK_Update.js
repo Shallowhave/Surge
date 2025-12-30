@@ -27,9 +27,15 @@ const $ = new Env('京东Cookie同步青龙');
 
 !(async () => {
     // 获取配置参数
-    const qinglongHost  = $.getval('qinglongHost')  || '';
-    const clientId      = $.getval('clientId')      || '';
-    const clientSecret  = $.getval('clientSecret')  || '';
+let args = typeof $argument === "string" ? $argument : ""; 
+    const argObj = Object.fromEntries(
+        args.split("&") 
+            .filter(item => item.includes("=")) 
+            .map(item => item.split("=").map(decodeURIComponent)) );
+    // 从 argument 获取参数 
+    const qinglongHost = argObj.qinglongHost || ''; 
+    const clientId = argObj.clientId || ''; 
+    const clientSecret = argObj.clientSecret || '';
     
     // 参数验证
     if (!qinglongHost || !clientId || !clientSecret) {
