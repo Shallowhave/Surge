@@ -249,8 +249,8 @@ async function jingfenJingTuiTui() {
         appkey: $.jtt_appkey,
         unionid: $.jd_unionId,
         positionid: $.jd_positionId,
-        gid: encodeURIComponent(`https://item.jd.com/${$.sku}.html`),
-        sceneId: 1,
+        gid: `https://item.jd.com/${$.sku}.html`, // ✅ 不编码
+        sceneId: 1,                              // ✅ 链接 + 1
         chainType: 2,
         auto_coupon: 1
       }
@@ -273,8 +273,6 @@ async function jingfenJingTuiTui() {
     });
   });
 }
-
-
 
 async function notice() {
   $.log("发送通知");
