@@ -197,45 +197,101 @@ if (requestUrl.includes(path1)) {
   })();
 }
 
+// async function jingfenJingTuiTui() {
+//   $.log("转链开始");
+//   return new Promise((resolve) => {
+//     const options = {
+//       url: `http://japi.jingtuitui.com/api/universal?appid=${$.jtt_appid}&appkey=${$.jtt_appkey}&v=v3&unionid=${$.jd_unionId}&positionid=${$.jd_positionId}&content=https://item.jd.com/${$.sku}.html`,
+//       timeout: 20000,
+//       headers: { "Content-Type": "application/json;charset=utf-8" },
+//     };
+
+//     $.get(options, (err, resp, data) => {
+//       if (err) {
+//         $.log("京推推 universal 请求失败：" + $.toStr(err));
+//       } else {
+//         try {
+//           data = JSON.parse(data);
+//           if (data["return"] == 0) {
+//             const linkData = data?.result?.link_date?.[0] || {};
+//             const { chain_link, goods_info } = linkData;
+//             if (goods_info) {
+//               const { skuName, imageInfo, commissionInfo, priceInfo } = goods_info;
+//               $.commissionShare = commissionInfo.commissionShare;
+//               $.commission = commissionInfo.couponCommission;
+//               $.price = priceInfo.lowestPrice;
+//               $.skuName = skuName;
+//               $.skuImg = imageInfo.imageList?.[0]?.url;
+//             }
+//             $.shortUrl = chain_link || "";
+//             $.log("转链完成，短链地址：" + $.shortUrl);
+//           } else {
+//             $.log("转链返回异常：" + JSON.stringify(data));
+//           }
+//         } catch (e) {
+//           $.logErr("JSON 解析失败: " + e.message);
+//         }
+//       }
+//       resolve();
+//     });
+//   });
+// }
 async function jingfenJingTuiTui() {
-  $.log("转链开始");
+  $.log("京推推 get_goods_link 转链开始");
+
   return new Promise((resolve) => {
     const options = {
-      url: `http://japi.jingtuitui.com/api/universal?appid=${$.jtt_appid}&appkey=${$.jtt_appkey}&v=v3&unionid=${$.jd_unionId}&positionid=${$.jd_positionId}&content=https://item.jd.com/${$.sku}.html`,
+      url: "http://japi.jingtuitui.com/api/get_goods_link",
+      method: "GET",
       timeout: 20000,
-      headers: { "Content-Type": "application/json;charset=utf-8" },
+      params: {
+        appid: $.jtt_appid,
+        appkey: $.jtt_appkey,
+        unionid: $.jd_unionId,
+        positionid: $.jd_positionId,
+        gid: $.sku,
+        chainType: 2,
+        auto_coupon: 1,
+        sceneId: 1
+      }
     };
 
     $.get(options, (err, resp, data) => {
       if (err) {
-        $.log("京推推 universal 请求失败：" + $.toStr(err));
-      } else {
-        try {
-          data = JSON.parse(data);
-          if (data["return"] == 0) {
-            const linkData = data?.result?.link_date?.[0] || {};
-            const { chain_link, goods_info } = linkData;
-            if (goods_info) {
-              const { skuName, imageInfo, commissionInfo, priceInfo } = goods_info;
-              $.commissionShare = commissionInfo.commissionShare;
-              $.commission = commissionInfo.couponCommission;
-              $.price = priceInfo.lowestPrice;
-              $.skuName = skuName;
-              $.skuImg = imageInfo.imageList?.[0]?.url;
-            }
-            $.shortUrl = chain_link || "";
-            $.log("转链完成，短链地址：" + $.shortUrl);
-          } else {
-            $.log("转链返回异常：" + JSON.stringify(data));
-          }
-        } catch (e) {
-          $.logErr("JSON 解析失败: " + e.message);
-        }
+        $.logErr("get_goods_link 请求失败：" + $.toStr(err));
+        return resolve();
       }
+
+      try {
+        data = typeof data === "string" ? JSON.parse(data) : data;
+
+        if (data.return == 0) {
+          const result = data.result || {};
+          const goods = result.goods_info || {};
+
+          $.shortUrl = result.link || "";
+
+          if (goods) {
+            $.skuName = goods.skuName;
+            $.skuImg = goods.imageInfo?.imageList?.[0]?.url;
+            $.price = goods.priceInfo?.lowestPrice;
+            $.commissionShare = goods.commissionInfo?.commissionShare;
+            $.commission = goods.commissionInfo?.couponCommission;
+          }
+
+          $.log("转链成功：" + $.shortUrl);
+        } else {
+          $.log("转链异常：" + JSON.stringify(data));
+        }
+      } catch (e) {
+        $.logErr("get_goods_link 解析失败：" + e.message);
+      }
+
       resolve();
     });
   });
 }
+
 
 async function notice() {
   $.log("发送通知");
