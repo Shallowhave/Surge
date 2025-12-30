@@ -249,48 +249,31 @@ async function jingfenJingTuiTui() {
         appkey: $.jtt_appkey,
         unionid: $.jd_unionId,
         positionid: $.jd_positionId,
-        gid: $.sku,
+        gid: encodeURIComponent(`https://item.jd.com/${$.sku}.html`),
+        sceneId: 1,
         chainType: 2,
-        auto_coupon: 1,
-        sceneId: 1
+        auto_coupon: 1
       }
     };
 
     $.get(options, (err, resp, data) => {
-      if (err) {
-        $.logErr("get_goods_link 请求失败：" + $.toStr(err));
-        return resolve();
-      }
-
       try {
         data = typeof data === "string" ? JSON.parse(data) : data;
 
         if (data.return == 0) {
-          const result = data.result || {};
-          const goods = result.goods_info || {};
-
-          $.shortUrl = result.link || "";
-
-          if (goods) {
-            $.skuName = goods.skuName;
-            $.skuImg = goods.imageInfo?.imageList?.[0]?.url;
-            $.price = goods.priceInfo?.lowestPrice;
-            $.commissionShare = goods.commissionInfo?.commissionShare;
-            $.commission = goods.commissionInfo?.couponCommission;
-          }
-
+          $.shortUrl = data.result?.link || "";
           $.log("转链成功：" + $.shortUrl);
         } else {
           $.log("转链异常：" + JSON.stringify(data));
         }
       } catch (e) {
-        $.logErr("get_goods_link 解析失败：" + e.message);
+        $.logErr("解析失败：" + e.message);
       }
-
       resolve();
     });
   });
 }
+
 
 
 async function notice() {
