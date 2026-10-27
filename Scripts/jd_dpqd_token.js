@@ -3,7 +3,7 @@
  * 打开店铺签到页面（h5.m.jd.com/babelDiy/Zeus/2PAAf74aG3D61qvfKUM5dxUssJQ9/index.html?token=xxx）时
  * 自动记录 token，去重后保存在 Surge 本地；填写了青龙参数时同步写入青龙环境变量 jd_dpqd_tokens。
  *
- * 模块参数（$argument）：ql_url=http://192.168.1.x:5700&client_id=xxx&client_secret=xxx&max=60
+ * 模块参数（$argument）：ql_url=http://192.168.1.x:5700&client_id=xxx&client_secret=xxx&max=60（值为 none 视为未填）
  */
 
 const STORE_KEY = 'jd_dpqd_tokens';
@@ -13,7 +13,7 @@ const args = Object.fromEntries(
   ($argument || '')
     .split('&')
     .map((kv) => kv.split('='))
-    .filter(([k, v]) => k && v && !v.startsWith('{{{'))
+    .filter(([k, v]) => k && v && v !== 'none' && !v.startsWith('{{{'))
     .map(([k, v]) => [k.trim(), decodeURIComponent(v.trim())])
 );
 const MAX = parseInt(args.max, 10) || 60;
