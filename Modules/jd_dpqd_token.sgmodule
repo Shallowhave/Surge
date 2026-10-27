@@ -1,0 +1,10 @@
+#!name=京东店铺签到 token 抓取
+#!desc=打开京东店铺签到页面时自动记录 token，可同步到青龙环境变量 jd_dpqd_tokens（配合 faker4 的 jd_dpqd_sign.js）
+#!arguments=QL_URL:http://192.168.1.x:5700,CLIENT_ID:,CLIENT_SECRET:,MAX:60
+#!arguments-desc=QL_URL：青龙地址（外出时经 WireGuard 回家访问）\nCLIENT_ID / CLIENT_SECRET：青龙「系统设置 → 应用设置」新建应用，权限勾选「环境变量」\nMAX：最多保留多少个 token\n不填 CLIENT_ID 则只保存在 Surge 本地
+
+[Script]
+店铺签到token = type=http-request, pattern=^https:\/\/h5\.m\.jd\.com\/babelDiy\/Zeus\/2PAAf74aG3D61qvfKUM5dxUssJQ9\/index\.html\?.*token=, requires-body=0, timeout=15, script-path=jd_dpqd_token.js, argument=ql_url={{{QL_URL}}}&client_id={{{CLIENT_ID}}}&client_secret={{{CLIENT_SECRET}}}&max={{{MAX}}}
+
+[MITM]
+hostname = %APPEND% h5.m.jd.com
