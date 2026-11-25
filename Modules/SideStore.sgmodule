@@ -1,0 +1,10 @@
+#!name=SideStore
+#!desc=替代 LocalDevVPN，支持 SideStore 与 LiveContainer
+#!category=系统增强
+
+[General]
+ipv6-vif = disabled
+tun-included-routes = %INSERT% 10.7.0.1/32
+
+[IP Rewrite]
+10.7.0.1 = reflect
